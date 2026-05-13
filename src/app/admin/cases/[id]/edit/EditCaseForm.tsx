@@ -15,7 +15,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select"
-import { updateCase } from "../../../../actions"
+import { updateCase } from "../../../actions"
 
 interface CaseData {
   id: string
