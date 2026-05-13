@@ -183,7 +183,7 @@ export default function NewCasePage() {
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="category">カテゴリー <span className="text-destructive">*</span></Label>
-                <Select name="category" value={formData.category} onValueChange={(val) => setFormData(p => ({...p, category: val}))}>
+                <Select name="category" value={formData.category} onValueChange={(val) => setFormData(p => ({...p, category: val ?? p.category}))}>
                   <SelectTrigger id="category">
                     <SelectValue placeholder="カテゴリーを選択" />
                   </SelectTrigger>
