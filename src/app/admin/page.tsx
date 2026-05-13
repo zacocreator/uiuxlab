@@ -11,15 +11,14 @@ import {
   TableRow 
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Plus, ExternalLink, Trash2, Layers } from "lucide-react"
+import { Plus, Layers } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { deleteCase } from "./actions"
-import { DeleteButton } from "./DeleteButton"
+import CaseTable from "./CaseTable"
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
   
-  const { data: cases, error } = await supabase
+  const { data: cases } = await supabase
     .from('cases')
     .select('*')
     .order('created_at', { ascending: false })
@@ -49,59 +48,7 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      <div className="border rounded-xl bg-card overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/50 hover:bg-muted/50">
-              <TableHead className="w-[100px]">カテゴリー</TableHead>
-              <TableHead>タイトル</TableHead>
-              <TableHead>サービス名</TableHead>
-              <TableHead>登録日</TableHead>
-              <TableHead className="text-right">操作</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {!cases || cases.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                  事例がまだ登録されていません。
-                </TableCell>
-              </TableRow>
-            ) : (
-              cases.map((item) => (
-                <TableRow key={item.id} className="group">
-                  <TableCell>
-                    <Badge variant="outline" className="text-[10px] font-bold whitespace-nowrap">
-                      {item.category}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {item.title}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {item.service_name}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-sm">
-                    {new Date(item.created_at).toLocaleDateString('ja-JP')}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Link 
-                        href={`/cases/${item.id}`} 
-                        target="_blank"
-                        className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-8")}
-                      >
-                        <ExternalLink className="size-4" />
-                      </Link>
-                      <DeleteButton id={item.id} />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <CaseTable cases={cases || []} />
     </div>
   )
 }

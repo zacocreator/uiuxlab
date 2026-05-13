@@ -56,3 +56,20 @@ export async function deletePattern(id: string) {
   revalidatePath('/admin/patterns')
   return { success: true }
 }
+
+export async function deletePatterns(ids: string[]) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('patterns')
+    .delete()
+    .in('id', ids)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/patterns')
+  revalidatePath('/admin/patterns')
+  return { success: true }
+}
