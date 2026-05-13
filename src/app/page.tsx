@@ -1,65 +1,126 @@
-import Image from "next/image";
+import Link from "next/link"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { createClient } from "@/utils/supabase/server"
+import { cn } from "@/lib/utils"
 
-export default function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; category?: string; tag?: string }>
+}) {
+  const params = await searchParams
+  const supabase = await createClient()
+
+  // Build query
+  let query = supabase
+    .from('cases')
+    .select(`
+      *,
+      case_tags (
+        tags (
+          name
+        )
+      )
+    `)
+    .order('created_at', { ascending: false })
+
+  // Filters
+  if (params.q) {
+    query = query.or(`title.ilike.%${params.q}%,service_name.ilike.%${params.q}%,summary.ilike.%${params.q}%`)
+  }
+  if (params.category && params.category !== 'All') {
+    query = query.eq('category', params.category)
+  }
+
+  const { data: cases, error } = await query
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="container px-4 py-12 md:px-6 lg:py-16 mx-auto max-w-7xl">
+      <div className="mb-12 space-y-4 text-center md:text-left">
+        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+          UI/UX Gallery
+        </h1>
+        <p className="text-lg text-muted-foreground max-w-[800px]">
+          個人的に収集した優れたUIデザインやUXの事例を集めたナレッジベースです。
+        </p>
+      </div>
+
+      <div className="flex items-center space-x-2 mb-10 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex gap-2">
+          <Link href="/" className={cn(badgeVariants({ variant: !params.category || params.category === 'All' ? "secondary" : "outline" }), "px-5 py-1.5")}>
+            All
+          </Link>
+          <Link href="/?category=Web App" className={cn(badgeVariants({ variant: params.category === 'Web App' ? "secondary" : "outline" }), "px-5 py-1.5")}>
+            Web App
+          </Link>
+          <Link href="/?category=Mobile App" className={cn(badgeVariants({ variant: params.category === 'Mobile App' ? "secondary" : "outline" }), "px-5 py-1.5")}>
+            Mobile App
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+
+      {!cases || cases.length === 0 ? (
+        <div className="text-center py-20 border rounded-2xl bg-muted/10">
+          <p className="text-muted-foreground">事例がまだ登録されていません。</p>
+          <Link href="/admin/cases/new" className="text-primary hover:underline mt-2 inline-block">
+            管理画面から追加する
+          </Link>
         </div>
-      </main>
+      ) : (
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {cases.map((item) => (
+            <Link href={`/cases/${item.id}`} key={item.id} className="block group">
+              <Card className="h-full overflow-hidden border-border/40 bg-card/50 backdrop-blur-sm group-hover:border-primary/50 group-hover:shadow-xl group-hover:shadow-primary/5 transition-all duration-300">
+                <div className="aspect-[16/10] w-full overflow-hidden bg-muted">
+                  {item.thumbnail_url ? (
+                    <img 
+                      src={item.thumbnail_url} 
+                      alt={item.title}
+                      className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
+                      No Image
+                    </div>
+                  )}
+                </div>
+                <CardHeader className="p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">{item.service_name}</span>
+                    <Badge variant="secondary" className="text-[10px] font-bold">{item.category}</Badge>
+                  </div>
+                  <CardTitle className="text-xl font-bold leading-tight group-hover:text-primary transition-colors">
+                    {item.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-5 pt-0">
+                  <p className="text-sm text-muted-foreground line-clamp-2 mb-5 leading-relaxed">
+                    {item.summary}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {item.case_tags?.map((ct: any) => (
+                      <Badge key={ct.tags.name} variant="outline" className="text-[10px] font-medium px-2 bg-background/30">
+                        {ct.tags.name}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
+}
+
+// Helper to use badge styles in Link
+function badgeVariants({ variant }: { variant: "secondary" | "outline" }) {
+  const base = "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+  const variants = {
+    secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+    outline: "text-foreground hover:bg-secondary/50"
+  }
+  return variants[variant] ? cn(base, variants[variant]) : base
 }
