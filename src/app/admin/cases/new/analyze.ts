@@ -53,7 +53,7 @@ export async function analyzeUrl(url: string) {
 
     // 4. Call Gemini for Analysis
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash', // Use a stable model
+      model: 'gemini-2.5-flash', 
       generationConfig: {
         temperature: 0.1,
         maxOutputTokens: 4096,
