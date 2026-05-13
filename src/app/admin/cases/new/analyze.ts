@@ -104,7 +104,10 @@ export async function analyzeUrl(url: string) {
           "visualization_data": {
             "structure": [{ "name": "要素", "description": "役割", "type": "image" }],
             "layout_hint": "grid",
-            "react_example": "簡潔なReactコード(5行以内。コード内の引用符は ' を使用し、改行は \\n で記述)"
+            "react_example": [
+              "import React from 'react';",
+              "// 簡潔なReactコード(各行を配列の要素にする)"
+            ]
           }
         }
       ]
@@ -113,7 +116,7 @@ export async function analyzeUrl(url: string) {
     ### 分析要件:
     1. パターン抽出は最大2つまでに絞ってください。
     2. 【最重要】出力は必ず有効なJSONにしてください。JSONのキーや文字列値は必ずダブルクォート(")で囲んでください。
-    3. react_example の値（Reactコード）の内部ではダブルクォートを使わず、必ずシングルクォート(')のみを使用してください。
+    3. react_example は文字列の配列として出力してください（改行コードを使わず、行ごとに配列の1要素とする）。
     4. 全ての解説は日本語で行ってください。
 
     Content to analyze:
@@ -137,6 +140,16 @@ export async function analyzeUrl(url: string) {
 
     try {
       const analysis = JSON.parse(jsonString);
+      
+      // react_example が配列の場合は文字列に結合して既存のデータ構造に合わせる
+      if (analysis.extracted_patterns && Array.isArray(analysis.extracted_patterns)) {
+        analysis.extracted_patterns.forEach((pattern: any) => {
+          if (pattern.visualization_data && Array.isArray(pattern.visualization_data.react_example)) {
+            pattern.visualization_data.react_example = pattern.visualization_data.react_example.join('\n');
+          }
+        });
+      }
+
       return { 
         data: {
           ...analysis,
