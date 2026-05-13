@@ -158,7 +158,10 @@ export async function analyzeUrl(url: string) {
       };
     } catch (parseError: any) {
       console.error('JSON Parse Error:', parseError);
-      return { error: `分析結果の読み込みに失敗しました (JSON形式エラー): ${parseError.message}` };
+      return { 
+        error: `分析結果の読み込みに失敗しました (JSON形式エラー): ${parseError.message}`,
+        rawText: jsonString
+      };
     }
 
   } catch (error: any) {

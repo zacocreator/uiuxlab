@@ -21,6 +21,7 @@ export default function NewCasePage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [url, setUrl] = useState('')
   const [thumbnail, setThumbnail] = useState('')
+  const [rawErrorText, setRawErrorText] = useState('')
   
   const [formData, setFormData] = useState({
     title: '',
@@ -52,10 +53,14 @@ export default function NewCasePage() {
     }
 
     setIsAnalyzing(true)
+    setRawErrorText('')
     try {
       const res = await analyzeUrl(url)
       if (res.error) {
         alert('分析エラー: ' + res.error)
+        if (res.rawText) {
+          setRawErrorText(res.rawText)
+        }
         return
       }
 
@@ -159,6 +164,18 @@ export default function NewCasePage() {
           </Button>
         </div>
       </div>
+
+      {rawErrorText && (
+        <div className="bg-destructive/10 border-destructive/20 border p-4 rounded-lg mb-10">
+          <h3 className="text-destructive font-bold mb-2">生成された生データ (デバッグ用)</h3>
+          <p className="text-sm text-muted-foreground mb-2">JSONのパースに失敗した文字列です。どこでフォーマットが崩れているか確認できます。</p>
+          <Textarea 
+            className="font-mono text-xs h-64 bg-background" 
+            value={rawErrorText} 
+            readOnly 
+          />
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-10">
         {/* URL field for the form submission */}
