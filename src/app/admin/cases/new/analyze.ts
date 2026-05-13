@@ -53,77 +53,68 @@ export async function analyzeUrl(url: string) {
 
     // 4. Call Gemini for Analysis
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash', // Use a stable model
       generationConfig: {
-        temperature: 0.2,
-        maxOutputTokens: 8192,
+        temperature: 0.1,
+        maxOutputTokens: 4096,
         responseMimeType: "application/json",
       }
     });
 
-    const prompt = `あなたは世界最高峰のUXリサーチャー兼UIデザイナーです。提供されたウェブページの内容を分析し、以下のJSON形式で詳細なUX/UIレポートを生成してください。
+    const prompt = `あなたは世界最高峰のUXリサーチャー兼UIデザイナーです。提供されたウェブページの内容を分析し、JSON形式で詳細なレポートを生成してください。
 
     ### 出力JSON構造:
     {
       "title": "ページタイトル",
       "service_name": "サービス名",
-      "summary": "ページの概要",
-      "target_users": "ターゲットユーザー",
-      "user_needs": "ユーザーニーズ",
-      "ux_strategy": "UX戦略",
-      "information_architecture": "情報設計",
-      "ui_tone": "デザインのトーン",
-      "main_cta": "メインCTA",
-      "conversion_points": "コンバージョンポイント",
-      "trust_elements": "信頼醸成要素",
-      "friction_points": "フリクション（課題点）",
-      "good_points": "優れた点",
+      "summary": "概要(100字程度)",
+      "target_users": "ターゲット",
+      "user_needs": "ニーズ",
+      "ux_strategy": "戦略",
+      "information_architecture": "IA",
+      "ui_tone": "トーン",
+      "main_cta": "CTA",
+      "conversion_points": "CV点",
+      "trust_elements": "信頼要素",
+      "friction_points": "課題",
+      "good_points": "良い点",
       "improvement_points": "改善案",
-      "suggested_tags": ["タグ1", "タグ2"],
+      "suggested_tags": ["タグ1"],
       "suggested_category": "Web App / Mobile App / Other",
       "ux_positioning": [
-        { "axis": "保守的", "label_left": "保守的", "label_right": "先進的", "score": 50, "comment": "理由" },
-        { "axis": "論理的", "label_left": "論理的", "label_right": "感情的", "score": 50, "comment": "理由" },
-        { "axis": "シンプル", "label_left": "シンプル", "label_right": "情報量多め", "score": 50, "comment": "理由" },
-        { "axis": "大衆向け", "label_left": "大衆向け", "label_right": "専門家向け", "score": 50, "comment": "理由" },
-        { "axis": "信頼感", "label_left": "信頼感重視", "label_right": "革新性重視", "score": 50, "comment": "理由" },
-        { "axis": "硬い", "label_left": "硬い", "label_right": "柔らかい", "score": 50, "comment": "理由" },
-        { "axis": "実務的", "label_left": "実務的", "label_right": "遊び心", "score": 50, "comment": "理由" },
-        { "axis": "ミニマル", "label_left": "ミニマル", "label_right": "リッチ", "score": 50, "comment": "理由" }
+        { "axis": "保守的", "label_left": "保守的", "label_right": "先進的", "score": 50, "comment": "理由" }
       ],
       "extracted_patterns": [
         {
           "name": "パターン名",
           "short_description": "説明",
           "purpose": "目的",
-          "user_problem": "解決する課題",
+          "user_problem": "課題",
           "ux_effect": "効果",
-          "implementation_notes": "実装注記",
-          "best_for": "適したケース",
+          "implementation_notes": "注記",
+          "best_for": "ケース",
           "risks": "リスク",
-          "cognitive_load": "認知負荷",
-          "emotional_effect": "感情的効果",
-          "mobile_compatibility": "モバイル対応",
+          "cognitive_load": "負荷",
+          "emotional_effect": "効果",
+          "mobile_compatibility": "対応",
           "accessibility_notes": "アクセシビリティ",
           "ux_positioning": [
              { "axis": "革新的", "label_left": "保守的", "label_right": "先進的", "score": 50, "comment": "理由" }
           ],
           "visualization_data": {
-            "structure": [
-              { "name": "要素名", "description": "役割", "type": "image" }
-            ],
+            "structure": [{ "name": "要素", "description": "役割", "type": "image" }],
             "layout_hint": "grid",
-            "react_example": "Reactコード（マークダウン記法不可、引用符は適切にエスケープすること）"
+            "react_example": "簡潔なReactコード(5行以内。引用符は ' を使用し、改行は \\n で記述)"
           }
         }
       ]
     }
 
     ### 分析要件:
-    1. パターン抽出は最大3つまでに絞ってください。
-    2. 【最重要】出力は必ず有効なJSONにしてください。特に \`react_example\` などの値の中で「実際の改行」を使用しないでください。改行が必要な場合は必ずエスケープシーケンス（\\n）を使用し、ダブルクォートも必ずエスケープ（\\"）してください。
-    3. 全ての解説は日本語で行ってください。
-    4. 途中で出力が切れないよう、各項目の説明は簡潔にしてください。
+    1. パターン抽出は最大2つまでに絞ってください。
+    2. 【最重要】出力は必ず有効なJSONにしてください。
+    3. react_example は極めて簡潔にし、内部の文字列にはシングルクォート(')のみを使用してください。
+    4. 全ての解説は日本語で行ってください。
 
     Content to analyze:
     ${extractedContent}`
@@ -135,11 +126,14 @@ export async function analyzeUrl(url: string) {
       return { error: 'Failed to generate analysis.' };
     }
 
-    // Clean up potential markdown code blocks
+    // Clean up potential markdown code blocks and invisible characters
     let jsonString = resultText.trim();
     if (jsonString.startsWith('```')) {
       jsonString = jsonString.replace(/^```(json)?\n?/, '').replace(/\n?```$/, '');
     }
+    
+    // Remove potential control characters that break JSON.parse
+    jsonString = jsonString.replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
 
     try {
       const analysis = JSON.parse(jsonString);
