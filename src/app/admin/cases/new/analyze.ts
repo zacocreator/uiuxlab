@@ -63,6 +63,18 @@ export async function analyzeUrl(url: string) {
 
     const prompt = `あなたは世界最高峰のUXリサーチャー兼UIデザイナーです。提供されたウェブページの内容を分析し、JSON形式で詳細なレポートを生成してください。
 
+    ### パターン命名に関する重要ルール:
+    1. パターン名は、開発者やデザイナーが一般的に使用する名称（コンポーネント名）を優先してください。
+    2. 以下の「標準パターン辞書」に該当するものがある場合は、必ずその名称を使用してください。
+       - **ナビゲーション**: Sticky Header, Mega Menu, Breadcrumbs, Side Navigation, Tab Bar, Drawer, Hamburger Menu
+       - **レイアウト**: Hero Section, Bento Grid, Card Grid, Masonry Layout, Accordion, Split Screen, Holy Grail Layout
+       - **フィード・一覧**: Infinite Scroll, Pagination, Skeleton Screen, Pull to Refresh, Empty State
+       - **インタラクション**: Modal Window, Popover, Tooltip, Toast Notification, Floating Action Button (FAB)
+       - **入力・フォーム**: Multi-step Form (Stepper), In-place Editing, Password Strength Meter, Input Validation
+       - **コンテンツ要素**: Carousel, Progress Bar, Pricing Table, Social Proof Section, User Reviews, Search Bar (Autocomplete)
+    3. 辞書にない場合でも、具体的すぎる固有名称（例: "A社のふわふわボタン"）は避け、一般的・抽象的な名称（例: "Animated Toggle"）に変換してください。
+    4. 最大2つまでに絞ってください。
+
     ### 出力JSON構造:
     {
       "title": "ページタイトル",
@@ -99,7 +111,7 @@ export async function analyzeUrl(url: string) {
           "mobile_compatibility": "対応",
           "accessibility_notes": "アクセシビリティ",
           "ux_positioning": [
-             { "axis": "革新的", "label_left": "保守的", "label_right": "先進的", "score": 50, "comment": "理由" }
+            { "axis": "革新的", "label_left": "保守的", "label_right": "先進的", "score": 50, "comment": "理由" }
           ],
           "visualization_data": {
             "structure": [{ "name": "要素", "description": "役割", "type": "image" }],
@@ -114,10 +126,9 @@ export async function analyzeUrl(url: string) {
     }
 
     ### 分析要件:
-    1. パターン抽出は最大2つまでに絞ってください。
-    2. 【最重要】出力は必ず有効なJSONにしてください。JSONのキーや文字列値は必ずダブルクォート(")で囲んでください。
-    3. react_example は文字列の配列として出力してください（改行コードを使わず、行ごとに配列の1要素とする）。
-    4. 全ての解説は日本語で行ってください。
+    1. 【最重要】出力は必ず有効なJSONにしてください。JSONのキーや文字列値は必ずダブルクォート(")で囲んでください。
+    2. react_example は文字列の配列として出力してください（改行コードを使わず、行ごとに配列の1要素とする）。
+    3. 全ての解説は日本語で行ってください。
 
     Content to analyze:
     ${extractedContent}`
