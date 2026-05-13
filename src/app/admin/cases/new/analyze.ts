@@ -104,7 +104,7 @@ export async function analyzeUrl(url: string) {
           "visualization_data": {
             "structure": [{ "name": "要素", "description": "役割", "type": "image" }],
             "layout_hint": "grid",
-            "react_example": "簡潔なReactコード(5行以内。引用符は ' を使用し、改行は \\n で記述)"
+            "react_example": "簡潔なReactコード(5行以内。コード内の引用符は ' を使用し、改行は \\n で記述)"
           }
         }
       ]
@@ -112,8 +112,8 @@ export async function analyzeUrl(url: string) {
 
     ### 分析要件:
     1. パターン抽出は最大2つまでに絞ってください。
-    2. 【最重要】出力は必ず有効なJSONにしてください。
-    3. react_example は極めて簡潔にし、内部の文字列にはシングルクォート(')のみを使用してください。
+    2. 【最重要】出力は必ず有効なJSONにしてください。JSONのキーや文字列値は必ずダブルクォート(")で囲んでください。
+    3. react_example の値（Reactコード）の内部ではダブルクォートを使わず、必ずシングルクォート(')のみを使用してください。
     4. 全ての解説は日本語で行ってください。
 
     Content to analyze:
